@@ -3,6 +3,8 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 const ACTION_OPTIONS = [
   "แสดงทั้งหมด",
   "labOrder",
@@ -63,7 +65,7 @@ function LogPage() {
   // User fetching
   const fetchUser = async () => {
     try {
-      const res = await axios.get(`http://localhost:5001/api/users/`);
+      const res = await axios.get(`${API_URL}/api/users/`);
       console.log("Fetched users:", res.data);
 
       const activeUsers = res.data.filter(user => !user.isDel);
@@ -79,7 +81,7 @@ function LogPage() {
     try {
       // console.log(`Fetching: Action=${actionParam}, Start=${startDate}, End=${endDate} User=${userParam} Status=${statusParam} Lab=${labParam}`);
 
-      const res = await axios.get(`http://localhost:5001/api/logs`, {
+      const res = await axios.get(`${API_URL}/api/logs`, {
         params: {
           page: pageNumber,
           limit: 50,
@@ -133,6 +135,17 @@ function LogPage() {
     fetchLogs();
     fetchUser();
   }, []);
+
+  // decoration
+  const getMethodBadge = (method) => {
+    switch (method) {
+      case 'GET': return 'bg-green-100 text-green-800';
+      case 'POST': return 'bg-blue-100 text-blue-800';
+      case 'PUT': return 'bg-yellow-100 text-yellow-800';
+      case 'DELETE': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -274,61 +287,100 @@ function LogPage() {
         </div>
 
         {/* table */}
-        {logs.length === 0 ? (
-          <p>No logs found.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Endpoint</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">labnumber</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">statusCode</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">message</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">timeMs</th>
-                </tr>
-              </thead>
-
-              <tbody className="bg-white">
-                {logs.map((log) => (
-                  <tr key={log._id}>
-                    <td className="py-4 px-6 border-b border-gray-200">
-                      {log.userId
-                        ? `${log.userId.prefix} ${log.userId.firstname} ${log.userId.lastname}`
-                        : 'Unknown User'}
-                    </td>
-                    <td className="py-4 px-6 border-b border-gray-200">{log.request?.endpoint}</td>
-                    <td className="py-4 px-6 border-b border-gray-200">{log.request?.method}</td>
-                    <td className="py-4 px-6 border-b border-gray-200">
-                      {new Date(log.timestamp).toLocaleString('en-GB', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: false
-                      })}
-                    </td>
-                    <td className="py-4 px-6 border-b border-gray-200">
-                      {log.labnumber && log.labnumber.length > 0
-                        ? log.labnumber.join(', ')
-                        : '-'}
-                    </td>
-                    <td className="py-4 px-6 border-b border-gray-200">{log.action}</td>
-                    <td className="py-4 px-6 border-b border-gray-200">{log.response?.statusCode}</td>
-                    <td className="py-4 px-6 border-b border-gray-200">{log.response?.message}</td>
-                    <td className="py-4 px-6 border-b border-gray-200">{log.response?.timeMs} ms</td>
+        <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm bg-white mt-6">
+          {logs.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              ไม่พบข้อมูล Log ที่ค้นหา
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">User</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Method</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Endpoint</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Time (ms)</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Timestamp</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Lab No.</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Message</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {logs.map((log) => (
+                    <tr key={log._id} className="hover:bg-gray-50 transition-colors">
+
+                      {/* User */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {log.userId
+                          ? `${log.userId.prefix} ${log.userId.firstname} ${log.userId.lastname}`
+                          : <span className="text-gray-400 italic">Unknown</span>}
+                      </td>
+
+                      {/* Method */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getMethodBadge(log.request?.method)}`}>
+                          {log.request?.method}
+                        </span>
+                      </td>
+
+                      {/* Endpoint */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono truncate" title={log.request?.endpoint}>
+                        {log.request?.endpoint}
+                      </td>
+
+                      {/* Status Code */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className={`font-bold ${log.response?.statusCode >= 400 ? 'text-red-600' : 'text-green-600'}`}>
+                          {log.response?.statusCode}
+                        </span>
+                      </td>
+
+                      {/* TimeMs */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                        {log.response?.timeMs} ms
+                      </td>
+
+                      {/* Timestamp */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(log.timestamp).toLocaleString('th-TH', {
+                          day: '2-digit', month: '2-digit', year: '2-digit',
+                          hour: '2-digit', minute: '2-digit', second: '2-digit'
+                        })}
+                      </td>
+
+                      {/* Action */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {log.action}
+                      </td>
+
+                      {/* Lab Number */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {log.labnumber && log.labnumber.length > 0 ? (
+                          <div className="flex gap-1">
+                            {log.labnumber.map((num, i) => (
+                              <span key={i} className="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-xs border border-gray-200">
+                                {num}
+                              </span>
+                            ))}
+                          </div>
+                        ) : '-'}
+                      </td>
+
+                      {/* Message */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate" title={log.response?.message}>
+                        {log.response?.message || '-'}
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
         {/* Pagination */}
         {logs.length > 0 && (
