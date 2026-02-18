@@ -1,6 +1,8 @@
 # Logs Viewer (MERN Stack)
 
 หน้าแสดงรายการบันทึกการใช้งานระบบ (System Access Logs) พัฒนาด้วย **MERN Stack** (MongoDB, Express, React, Node.js)
+
+**Preview:** https://logs-viewer-frontend.onrender.com/
 ## ฟีเจอร์หลัก (Features)
 
 * **Log Dashboard:** แสดงรายการ Log ในรูปแบบตาราง
