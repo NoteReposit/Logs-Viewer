@@ -48,16 +48,18 @@
    ```bash
    npm run dev
 ### 3. การติดตั้งส่วน Frontend (Client)
-1. เข้าไปที่โฟลเดอร์ `backend`
+1. เข้าไปที่โฟลเดอร์ `frontend`
    ```bash
    cd frontend
 2. ติดตั้ง Dependencies
    ```bash
    npm install
-3. รัน Server
+3. สร้างไฟล์ .env และกำหนดค่า Config
+   ```Code snippet
+   VITE_API_URL=https://api.example
+4. รัน Server
    ```bash
    npm run dev
-
 ## โครงสร้าง (Structure)
     Logs-Viewer/
     ├── backend/
