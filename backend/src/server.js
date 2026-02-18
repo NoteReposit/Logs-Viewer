@@ -11,12 +11,13 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 connectDB();
 
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: FRONTEND_URL,
 }));
 
 app.use("/api/users", userRoutes);

@@ -44,6 +44,7 @@
    ```Code snippet
    MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/myDatabase
    PORT=5001
+   FRONTEND_URL=http://localhost:5173
 4. รัน Server
    ```bash
    npm run dev
