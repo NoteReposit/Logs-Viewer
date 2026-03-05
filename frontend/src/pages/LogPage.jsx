@@ -24,8 +24,7 @@ const ACTION_OPTIONS = [
 ];
 
 const getDefaultStart = () => {
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
+  const now = new Date("2024-01-01T00:00:00");
   return now.toISOString().slice(0, 16);
 };
 
