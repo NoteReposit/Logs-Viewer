@@ -2,8 +2,6 @@
 
 This page displays the system access logs, developed using the **MERN Stack** (MongoDB, Express, React, Node.js).
 
-🔗 **Live Demo:** [View Project](https://logs-viewer-frontend.onrender.com/)
-
 ---
 
 ## ✨ Key Features
